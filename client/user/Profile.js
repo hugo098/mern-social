@@ -14,8 +14,8 @@ import Person from '@material-ui/icons/Person'
 import Divider from '@material-ui/core/Divider'
 import DeleteUser from './DeleteUser'
 import auth from './../auth/auth-helper'
-import {read} from './api-user.js'
-import {Redirect, Link} from 'react-router-dom'
+import { read } from './api-user.js'
+import { Redirect, Link } from 'react-router-dom'
 
 const useStyles = makeStyles(theme => ({
   root: theme.mixins.gutters({
@@ -32,7 +32,11 @@ const useStyles = makeStyles(theme => ({
 
 export default function Profile({ match }) {
   const classes = useStyles()
-  const [user, setUser] = useState({})
+  const [values, setValues] = useState({
+    user: {following:[], followers:[]},
+    redirectToSignin: false,
+    following: false
+  })
   const [redirectToSignin, setRedirectToSignin] = useState(false)
   const jwt = auth.isAuthenticated()
 
@@ -42,53 +46,62 @@ export default function Profile({ match }) {
 
     read({
       userId: match.params.userId
-    }, {t: jwt.token}, signal).then((data) => {
+    }, { t: jwt.token }, signal).then((data) => {
       if (data && data.error) {
-        setRedirectToSignin(true)
+        setValues({...values, redirectToSignin: true})
       } else {
-        setUser(data)
+        //let following = checkFollow(data)
+        setValues({...values, user: data/*, following: following*/})
+        //loadPosts(data._id)
       }
     })
 
-    return function cleanup(){
+    return function cleanup() {
       abortController.abort()
     }
 
   }, [match.params.userId])
-  
-    if (redirectToSignin) {
-      return <Redirect to='/signin'/>
-    }
-    return (
-      <Paper className={classes.root} elevation={4}>
-        <Typography variant="h6" className={classes.title}>
-          Profile
-        </Typography>
-        <List dense>
-          <ListItem>
-            <ListItemAvatar>
-              <Avatar>
-                <Person/>
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={user.name} secondary={user.email}/> {
-             auth.isAuthenticated().user && auth.isAuthenticated().user._id == user._id &&
-              (<ListItemSecondaryAction>
-                <Link to={"/user/edit/" + user._id}>
-                  <IconButton aria-label="Edit" color="primary">
-                    <Edit/>
-                  </IconButton>
-                </Link>
-                <DeleteUser userId={user._id}/>
-              </ListItemSecondaryAction>)
-              }
-          </ListItem>
-          <Divider/>
-          <ListItem>
-            <ListItemText primary={"Joined: " + (
-              new Date(user.created)).toDateString()}/>
-          </ListItem>
-        </List>
-      </Paper>
-    )
+
+  if (redirectToSignin) {
+    return <Redirect to='/signin' />
   }
+  const photoUrl = values.user._id
+    ? `/api/users/photo/${values.user._id}?${new Date().getTime()}`
+    : '/api/users/defaultphoto'
+  if (values.redirectToSignin) {
+    return <Redirect to='/signin' />
+  }
+  return (
+    <Paper className={classes.root} elevation={4}>
+      <Typography variant="h6" className={classes.title}>
+        Profile
+        </Typography>
+      <List dense>
+        <ListItem>
+          <ListItemAvatar>
+            <Avatar>
+            <Avatar src={photoUrl} className={classes.bigAvatar}/>
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary={values.user.name} secondary={values.user.email} /> {
+            auth.isAuthenticated().user && auth.isAuthenticated().user._id == values.user._id &&
+            (<ListItemSecondaryAction>
+              <Link to={"/user/edit/" + values. user._id}>
+                <IconButton aria-label="Edit" color="primary">
+                  <Edit />
+                </IconButton>
+              </Link>
+              <DeleteUser userId={values.user._id} />
+            </ListItemSecondaryAction>)
+          }
+        </ListItem>
+        <Divider />
+        <ListItem>
+          <ListItemText primary={values.user.about} />
+          <ListItemText primary={"Joined: " + (
+            new Date(values.user.created)).toDateString()} />
+        </ListItem>
+      </List>
+    </Paper>
+  )
+}
