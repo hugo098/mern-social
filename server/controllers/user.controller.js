@@ -110,8 +110,7 @@ const defaultPhoto = (req, res) => {
 
 const addFollowing = async (req, res, next) => {
     try {
-        await User.findByIdAndUpdate(req.body.userId,
-            { $push: { following: req.body.followId } })
+        await User.findByIdAndUpdate(req.body.userId, { $push: { following: req.body.followId } })
         next()
     } catch (err) {
         return res.status(400).json({
@@ -167,17 +166,17 @@ const removeFollower = async (req, res) => {
     }
 }
 
-export default { 
-    create, 
-    userByID, 
-    read, 
-    list, 
-    remove, 
-    update, 
-    photo, 
+export default {
+    create,
+    userByID,
+    read,
+    list,
+    remove,
+    update,
+    photo,
     defaultPhoto,
     addFollowing,
     addFollower,
     removeFollowing,
     removeFollower
- }
+}
