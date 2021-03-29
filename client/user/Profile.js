@@ -16,6 +16,7 @@ import DeleteUser from './DeleteUser'
 import auth from './../auth/auth-helper'
 import { read } from './api-user.js'
 import { Redirect, Link } from 'react-router-dom'
+import ProfileTabs from './ProfileTabs'
 
 const useStyles = makeStyles(theme => ({
   root: theme.mixins.gutters({
@@ -126,6 +127,7 @@ export default function Profile({ match }) {
             new Date(values.user.created)).toDateString()} />
         </ListItem>
       </List>
+      <ProfileTabs user={values.user} /*posts={posts} removePostUpdate={removePost}*//>
     </Paper>
   )
 }
