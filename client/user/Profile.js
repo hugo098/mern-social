@@ -43,7 +43,7 @@ export default function Profile({ match }) {
   const [values, setValues] = useState({
     user: { following: [], followers: [] },
     redirectToSignin: false,
-    following: false
+    following: false 
   })
   const [posts, setPosts] = useState([])
   const jwt = auth.isAuthenticated()
@@ -97,15 +97,17 @@ export default function Profile({ match }) {
       if (data.error) {
         console.log(data.error)
       } else {
-        setPosts(data)
+        setPosts(data)        
       }
     })
   }
+  
   const removePost = (post) => {
     const updatedPosts = posts
     const index = updatedPosts.indexOf(post)
     updatedPosts.splice(index, 1)
-    setPosts(updatedPosts)
+    setPosts(updatedPosts)   
+    setValues({...values})   
   }
 
   const photoUrl = values.user._id
